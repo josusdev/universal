@@ -1,6 +1,6 @@
 --[[
     SECURITY PROTOCOL: @josus.dev
-    STATUS: ANTI-DEOBFUSCATE / AUTO-CLEAN ACTIVE
+    AUTO-CLEAN & SYNC SYSTEM v5.0
 ]]
 
 local _P = game:GetService("Players")
@@ -8,10 +8,10 @@ local _W = game:GetService("Workspace")
 local _L = _P.LocalPlayer
 local _G = _L:WaitForChild("PlayerGui")
 
-if _G:FindFirstChild("JosusDev_V4") then _G.JosusDev_V4:Destroy() end
+if _G:FindFirstChild("JosusDev_V5") then _G.JosusDev_V5:Destroy() end
 
 local _S = Instance.new("ScreenGui", _G)
-_S.Name = "JosusDev_V4"
+_S.Name = "JosusDev_V5"
 _S.ResetOnSpawn = false
 
 local _M = Instance.new("Frame", _S)
@@ -52,8 +52,8 @@ _LK.MouseButton1Click:Connect(function() _isL = not _isL; _M.Draggable = not _is
 
 local _eOn, _hOn = false, false
 
--- Función para limpiar ESP al apagar
-local function _ClearESP()
+-- FUNCIÓN DE LIMPIEZA RADICAL
+local function _KillAll()
     for _, v in pairs(_W:GetDescendants()) do
         if v.Name == "J_ESP" or v.Name == "J_HL" then
             v:Destroy()
@@ -61,39 +61,49 @@ local function _ClearESP()
     end
 end
 
-local function _ApplyESP(obj)
-    if not _eOn and not _hOn then return end
-    if obj:IsA("Model") and obj:FindFirstChild("Humanoid") and obj ~= _L.Character then
-        local head = obj:FindFirstChild("Head") or obj:FindFirstChild("UpperTorso")
-        if head then
-            if _eOn then
-                local bg = obj:FindFirstChild("J_ESP") or Instance.new("BillboardGui", head)
-                bg.Name = "J_ESP"; bg.AlwaysOnTop = true; bg.Size = UDim2.new(0, 100, 0, 50)
-                bg.StudsOffset = Vector3.new(0, 3, 0); bg.Enabled = true
-                
-                local tl = bg:FindFirstChild("T") or Instance.new("TextLabel", bg)
-                tl.Name = "T"; tl.Size = UDim2.new(1, 0, 1, 0); tl.BackgroundTransparency = 1
-                tl.TextColor3 = Color3.new(1, 1, 1); tl.TextSize = 11; tl.Font = "GothamBold"; tl.TextStrokeTransparency = 0
+-- BUCLE CENTRAL DE ACTUALIZACIÓN (Sincronizado)
+task.spawn(function()
+    while task.wait(0.2) do
+        if not _eOn and not _hOn then
+            -- Si todo está apagado, no hace nada (ahorra batería)
+        else
+            for _, obj in pairs(_W:GetDescendants()) do
+                if obj:IsA("Model") and obj:FindFirstChild("Humanoid") and obj ~= _L.Character then
+                    local hrp = obj:FindFirstChild("HumanoidRootPart")
+                    local head = obj:FindFirstChild("Head")
+                    
+                    if hrp and head then
+                        -- Lógica Highlight
+                        if _hOn then
+                            local hl = obj:FindFirstChild("J_HL") or Instance.new("Highlight", obj)
+                            hl.Name = "J_HL"; hl.Enabled = true; hl.FillColor = Color3.new(1, 0, 0); hl.DepthMode = "AlwaysOnTop"
+                        elseif obj:FindFirstChild("J_HL") then
+                            obj.J_HL:Destroy()
+                        end
 
-                task.spawn(function()
-                    while obj.Parent and _eOn and bg.Parent do
-                        local dist = math.floor((_L.Character.HumanoidRootPart.Position - head.Position).Magnitude)
-                        local hp = math.floor(obj.Humanoid.Health)
-                        tl.Text = obj.Name .. "\n[" .. hp .. " HP]\n" .. dist .. "m"
-                        task.wait(0.3)
+                        -- Lógica Billboard (Nombres, Vida, Distancia)
+                        if _eOn then
+                            local bg = head:FindFirstChild("J_ESP") or Instance.new("BillboardGui", head)
+                            bg.Name = "J_ESP"; bg.AlwaysOnTop = true; bg.Size = UDim2.new(0, 100, 0, 50); bg.StudsOffset = Vector3.new(0, 3, 0)
+                            
+                            local tl = bg:FindFirstChild("T") or Instance.new("TextLabel", bg)
+                            tl.Name = "T"; tl.Size = UDim2.new(1, 0, 1, 0); tl.BackgroundTransparency = 1; tl.TextColor3 = Color3.new(1, 1, 1)
+                            tl.Font = "GothamBold"; tl.TextSize = 11; tl.TextStrokeTransparency = 0
+                            
+                            local dist = math.floor((_L.Character.HumanoidRootPart.Position - hrp.Position).Magnitude)
+                            local hp = math.floor(obj.Humanoid.Health)
+                            tl.Text = obj.Name .. "\n[" .. hp .. " HP]\n" .. dist .. "m"
+                        elseif head:FindFirstChild("J_ESP") then
+                            head.J_ESP:Destroy()
+                        end
                     end
-                    if not _eOn and bg then bg:Destroy() end
-                end)
-            end
-
-            if _hOn then
-                local hl = obj:FindFirstChild("J_HL") or Instance.new("Highlight", obj)
-                hl.Name = "J_HL"; hl.FillColor = Color3.new(1, 0, 0); hl.Enabled = true; hl.DepthMode = "AlwaysOnTop"
+                end
             end
         end
     end
-end
+end)
 
+-- Botones
 local function _createB(txt, pos, mode)
     local b = Instance.new("TextButton", _M)
     b.Size = UDim2.new(0, 160, 0, 40); b.Position = pos; b.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
@@ -102,23 +112,14 @@ local function _createB(txt, pos, mode)
     b.MouseButton1Click:Connect(function()
         if mode == "E" then
             _eOn = not _eOn; b.Text = "ESP: " .. (_eOn and "ON" or "OFF")
-            if not _eOn then _ClearESP() end
         else
             _hOn = not _hOn; b.Text = "HIGHLIGHT: " .. (_hOn and "ON" or "OFF")
-            if not _hOn then _ClearESP() end
         end
-        if _eOn or _hOn then
-            for _, v in pairs(_W:GetDescendants()) do _ApplyESP(v) end
-        end
+        if not _eOn and not _hOn then _KillAll() end
     end)
 end
 
 _createB("ESP: OFF", UDim2.new(0, 15, 0, 50), "E")
 _createB("HIGHLIGHT: OFF", UDim2.new(0, 15, 0, 100), "H")
 
-_W.DescendantAdded:Connect(function(v)
-    task.wait(0.5)
-    if _eOn or _hOn then _ApplyESP(v) end
-end)
-
-print("System @josus.dev - Limpieza Automática Activada")
+print("System @josus.dev - V5 Smooth Sync Loaded")
