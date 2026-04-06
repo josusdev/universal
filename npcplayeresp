@@ -4,38 +4,48 @@ local _R = game:GetService("RunService")
 local _L = _P.LocalPlayer
 local _G = _L:WaitForChild("PlayerGui")
 
-if _G:FindFirstChild("JosusDev_Final") then _G.JosusDev_V10:Destroy() end
+if _G:FindFirstChild("JosusDev_Final") then _G.JosusDev_Final:Destroy() end
 
 local _S = Instance.new("ScreenGui", _G)
 _S.Name = "JosusDev_Final"
 _S.ResetOnSpawn = false
 
 local _M = Instance.new("Frame", _S)
-_M.Size = UDim2.new(0, 190, 0, 210)
-_M.Position = UDim2.new(0.5, -95, 0.3, 0)
+_M.Size = UDim2.new(0, 200, 0, 200)
+_M.Position = UDim2.new(0.5, -100, 0.3, 0)
 _M.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 _M.Active = true
 _M.Draggable = true
+Instance.new("UICorner", _M)
 local _ST = Instance.new("UIStroke", _M)
 _ST.Color = Color3.fromRGB(255, 0, 0)
 _ST.Thickness = 2
-Instance.new("UICorner", _M)
 
-local _T = Instance.new("TextLabel", _M)
-_T.Size = UDim2.new(0, 120, 0, 30); _T.Position = UDim2.new(0, 10, 0, 5)
+local _LY = Instance.new("UIListLayout", _M)
+_LY.Padding = UDim.new(0, 7)
+_LY.HorizontalAlignment = "Center"
+_LY.SortOrder = "LayoutOrder"
+
+local _H = Instance.new("Frame", _M)
+_H.Size = UDim2.new(1, 0, 0, 40)
+_H.BackgroundTransparency = 1
+_H.LayoutOrder = 0
+
+local _T = Instance.new("TextLabel", _H)
+_T.Size = UDim2.new(0, 100, 1, 0); _T.Position = UDim2.new(0, 12, 0, 0)
 _T.Text = "@josus.dev"; _T.TextColor3 = Color3.new(1, 1, 1)
 _T.BackgroundTransparency = 1; _T.Font = "GothamBold"; _T.TextSize = 14; _T.TextXAlignment = "Left"
 
-local _LK = Instance.new("TextButton", _M)
-_LK.Size = UDim2.new(0, 25, 0, 25); _LK.Position = UDim2.new(1, -60, 0, 5)
+local _LK = Instance.new("TextButton", _H)
+_LK.Size = UDim2.new(0, 25, 0, 25); _LK.Position = UDim2.new(1, -65, 0.5, -12)
 _LK.Text = "🔓"; _LK.BackgroundColor3 = Color3.fromRGB(40, 40, 40); Instance.new("UICorner", _LK)
 
-local _CL = Instance.new("TextButton", _M)
-_CL.Size = UDim2.new(0, 25, 0, 25); _CL.Position = UDim2.new(1, -30, 0, 5)
+local _CL = Instance.new("TextButton", _H)
+_CL.Size = UDim2.new(0, 25, 0, 25); _CL.Position = UDim2.new(1, -35, 0.5, -12)
 _CL.Text = "X"; _CL.BackgroundColor3 = Color3.fromRGB(150, 0, 0); _CL.TextColor3 = Color3.new(1, 1, 1); Instance.new("UICorner", _CL)
 
 local _OP = Instance.new("TextButton", _S)
-_OP.Size = UDim2.new(0, 75, 0, 30); _OP.Position = UDim2.new(0, 10, 0.5, 0)
+_OP.Size = UDim2.new(0, 80, 0, 35); _OP.Position = UDim2.new(0, 15, 0.5, 0)
 _OP.Text = "Open"; _OP.Visible = false; _OP.BackgroundColor3 = Color3.fromRGB(15, 15, 15); _OP.TextColor3 = Color3.new(1, 1, 1)
 Instance.new("UIStroke", _OP).Color = Color3.fromRGB(255, 0, 0); Instance.new("UICorner", _OP)
 
@@ -48,16 +58,14 @@ _LK.MouseButton1Click:Connect(function() _isL = not _isL; _M.Draggable = not _is
 local _eOn = false
 local _hOn = false
 
-local function _FullClean()
+local function _Kill(name)
     for _, v in pairs(_W:GetDescendants()) do
-        if v.Name == "J_ESP" or v.Name == "J_HL" then
-            v:Destroy()
-        end
+        if v.Name == name then v:Destroy() end
     end
 end
 
-local _RenderLoop
-_RenderLoop = _R.RenderStepped:Connect(function()
+_R.RenderStepped:Connect(function()
+    if not _eOn and not _hOn then return end
     for _, obj in pairs(_W:GetDescendants()) do
         if obj:IsA("Model") and obj:FindFirstChild("Humanoid") and obj ~= _L.Character then
             local head = obj:FindFirstChild("Head")
@@ -70,49 +78,42 @@ _RenderLoop = _R.RenderStepped:Connect(function()
                     tl.Font = "GothamBold"; tl.TextSize = 10; tl.TextStrokeTransparency = 0
                     local dist = math.floor((_L.Character.HumanoidRootPart.Position - head.Position).Magnitude)
                     tl.Text = obj.Name .. "\n[" .. math.floor(obj.Humanoid.Health) .. " HP]\n" .. dist .. "m"
-                else
-                    if head:FindFirstChild("J_ESP") then head.J_ESP:Destroy() end
                 end
-
                 if _hOn then
                     local hl = obj:FindFirstChild("J_HL") or Instance.new("Highlight", obj)
                     hl.Name = "J_HL"; hl.Enabled = true; hl.FillColor = Color3.new(1, 0, 0); hl.DepthMode = "AlwaysOnTop"
-                else
-                    if obj:FindFirstChild("J_HL") then obj.J_HL:Destroy() end
                 end
             end
         end
     end
 end)
 
-local _B1 = Instance.new("TextButton", _M)
-_B1.Size = UDim2.new(0, 170, 0, 35); _B1.Position = UDim2.new(0, 10, 0, 45)
-_B1.Text = "ESP: OFF"; _B1.BackgroundColor3 = Color3.fromRGB(35, 35, 35); _B1.TextColor3 = Color3.new(1, 1, 1); Instance.new("UICorner", _B1)
+local function _btn(t, ord, c)
+    local b = Instance.new("TextButton", _M)
+    b.Size = UDim2.new(0, 180, 0, 40); b.LayoutOrder = ord; b.Text = t
+    b.BackgroundColor3 = c or Color3.fromRGB(35, 35, 35); b.TextColor3 = Color3.new(1, 1, 1); b.Font = "GothamBold"
+    Instance.new("UICorner", b)
+    return b
+end
 
-local _B2 = Instance.new("TextButton", _M)
-_B2.Size = UDim2.new(0, 170, 0, 35); _B2.Position = UDim2.new(0, 10, 0, 90)
-_B2.Text = "HIGHLIGHT: OFF"; _B2.BackgroundColor3 = Color3.fromRGB(35, 35, 35); _B2.TextColor3 = Color3.new(1, 1, 1); Instance.new("UICorner", _B2)
-
-local _B3 = Instance.new("TextButton", _M)
-_B3.Size = UDim2.new(0, 170, 0, 35); _B3.Position = UDim2.new(0, 10, 0, 135)
-_B3.Text = "DESTROY"; _B3.BackgroundColor3 = Color3.fromRGB(80, 0, 0); _B3.TextColor3 = Color3.new(1, 1, 1); Instance.new("UICorner", _B3)
+local _B1 = _btn("ESP: OFF", 1)
+local _B2 = _btn("HIGHLIGHT: OFF", 2)
+local _B3 = _btn("DESTROY", 3, Color3.fromRGB(100, 0, 0))
 
 _B1.MouseButton1Click:Connect(function()
     _eOn = not _eOn
     _B1.Text = "ESP: " .. (_eOn and "ON" or "OFF")
-    if not _eOn then _FullClean() end
+    if not _eOn then _Kill("J_ESP") end
 end)
 
 _B2.MouseButton1Click:Connect(function()
     _hOn = not _hOn
     _B2.Text = "HIGHLIGHT: " .. (_hOn and "ON" or "OFF")
-    if not _hOn then _FullClean() end
+    if not _hOn then _Kill("J_HL") end
 end)
 
 _B3.MouseButton1Click:Connect(function()
-    _eOn = false
-    _hOn = false
-    _RenderLoop:Disconnect()
-    _FullClean()
+    _eOn = false; _hOn = false
+    _Kill("J_ESP"); _Kill("J_HL")
     _S:Destroy()
 end)
