@@ -1,26 +1,27 @@
 --[[
     SECURITY PROTOCOL: @josus.dev
-    AUTO-CLEAN & SYNC SYSTEM v5.0
+    ULTRA-SYNC RENDER SYSTEM v7.0 (FINAL)
+    ACCESS: PRIVATE
 ]]
 
 local _P = game:GetService("Players")
 local _W = game:GetService("Workspace")
+local _R = game:GetService("RunService")
 local _L = _P.LocalPlayer
 local _G = _L:WaitForChild("PlayerGui")
 
-if _G:FindFirstChild("JosusDev_V5") then _G.JosusDev_V5:Destroy() end
+if _G:FindFirstChild("JosusDev_V7") then _G.JosusDev_V7:Destroy() end
 
 local _S = Instance.new("ScreenGui", _G)
-_S.Name = "JosusDev_V5"
+_S.Name = "JosusDev_V7"
 _S.ResetOnSpawn = false
 
 local _M = Instance.new("Frame", _S)
-_M.Size = UDim2.new(0, 190, 0, 160)
+_M.Size = UDim2.new(0, 190, 0, 205) -- Tamaño aumentado para el nuevo botón
 _M.Position = UDim2.new(0.5, -95, 0.3, 0)
 _M.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 _M.Active = true
 _M.Draggable = true
-
 local _ST = Instance.new("UIStroke", _M)
 _ST.Color = Color3.fromRGB(255, 0, 0)
 _ST.Thickness = 2
@@ -52,74 +53,67 @@ _LK.MouseButton1Click:Connect(function() _isL = not _isL; _M.Draggable = not _is
 
 local _eOn, _hOn = false, false
 
--- FUNCIÓN DE LIMPIEZA RADICAL
-local function _KillAll()
-    for _, v in pairs(_W:GetDescendants()) do
-        if v.Name == "J_ESP" or v.Name == "J_HL" then
-            v:Destroy()
-        end
-    end
-end
+-- MOTOR DE RENDERIZADO (Conexión para poder desconectarla después)
+local _RenderLoop
+_RenderLoop = _R.RenderStepped:Connect(function()
+    for _, obj in pairs(_W:GetDescendants()) do
+        if obj:IsA("Model") and obj:FindFirstChild("Humanoid") and obj ~= _L.Character then
+            local head = obj:FindFirstChild("Head")
+            local hrp = obj:FindFirstChild("HumanoidRootPart")
 
--- BUCLE CENTRAL DE ACTUALIZACIÓN (Sincronizado)
-task.spawn(function()
-    while task.wait(0.2) do
-        if not _eOn and not _hOn then
-            -- Si todo está apagado, no hace nada (ahorra batería)
-        else
-            for _, obj in pairs(_W:GetDescendants()) do
-                if obj:IsA("Model") and obj:FindFirstChild("Humanoid") and obj ~= _L.Character then
-                    local hrp = obj:FindFirstChild("HumanoidRootPart")
-                    local head = obj:FindFirstChild("Head")
-                    
-                    if hrp and head then
-                        -- Lógica Highlight
-                        if _hOn then
-                            local hl = obj:FindFirstChild("J_HL") or Instance.new("Highlight", obj)
-                            hl.Name = "J_HL"; hl.Enabled = true; hl.FillColor = Color3.new(1, 0, 0); hl.DepthMode = "AlwaysOnTop"
-                        elseif obj:FindFirstChild("J_HL") then
-                            obj.J_HL:Destroy()
-                        end
+            if head and hrp then
+                if _hOn then
+                    local hl = obj:FindFirstChild("J_HL") or Instance.new("Highlight", obj)
+                    hl.Name = "J_HL"; hl.Enabled = true; hl.FillColor = Color3.new(1, 0, 0); hl.DepthMode = "AlwaysOnTop"
+                else
+                    if obj:FindFirstChild("J_HL") then obj.J_HL:Destroy() end
+                end
 
-                        -- Lógica Billboard (Nombres, Vida, Distancia)
-                        if _eOn then
-                            local bg = head:FindFirstChild("J_ESP") or Instance.new("BillboardGui", head)
-                            bg.Name = "J_ESP"; bg.AlwaysOnTop = true; bg.Size = UDim2.new(0, 100, 0, 50); bg.StudsOffset = Vector3.new(0, 3, 0)
-                            
-                            local tl = bg:FindFirstChild("T") or Instance.new("TextLabel", bg)
-                            tl.Name = "T"; tl.Size = UDim2.new(1, 0, 1, 0); tl.BackgroundTransparency = 1; tl.TextColor3 = Color3.new(1, 1, 1)
-                            tl.Font = "GothamBold"; tl.TextSize = 11; tl.TextStrokeTransparency = 0
-                            
-                            local dist = math.floor((_L.Character.HumanoidRootPart.Position - hrp.Position).Magnitude)
-                            local hp = math.floor(obj.Humanoid.Health)
-                            tl.Text = obj.Name .. "\n[" .. hp .. " HP]\n" .. dist .. "m"
-                        elseif head:FindFirstChild("J_ESP") then
-                            head.J_ESP:Destroy()
-                        end
-                    end
+                if _eOn then
+                    local bg = head:FindFirstChild("J_ESP") or Instance.new("BillboardGui", head)
+                    bg.Name = "J_ESP"; bg.AlwaysOnTop = true; bg.Size = UDim2.new(0, 100, 0, 50); bg.StudsOffset = Vector3.new(0, 3, 0)
+                    local tl = bg:FindFirstChild("T") or Instance.new("TextLabel", bg)
+                    tl.Name = "T"; tl.Size = UDim2.new(1, 0, 1, 0); tl.BackgroundTransparency = 1; tl.TextColor3 = Color3.new(1, 1, 1)
+                    tl.Font = "GothamBold"; tl.TextSize = 11; tl.TextStrokeTransparency = 0
+                    local dist = math.floor((_L.Character.HumanoidRootPart.Position - hrp.Position).Magnitude)
+                    local hp = math.floor(obj.Humanoid.Health)
+                    tl.Text = obj.Name .. "\n[" .. hp .. " HP]\n" .. dist .. "m"
+                else
+                    if head:FindFirstChild("J_ESP") then head.J_ESP:Destroy() end
                 end
             end
         end
     end
 end)
 
--- Botones
+-- Botones de ESP y Highlight
 local function _createB(txt, pos, mode)
     local b = Instance.new("TextButton", _M)
-    b.Size = UDim2.new(0, 160, 0, 40); b.Position = pos; b.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    b.Size = UDim2.new(0, 160, 0, 35); b.Position = pos; b.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
     b.Text = txt; b.TextColor3 = Color3.new(1, 1, 1); b.Font = "GothamBold"; Instance.new("UICorner", b)
-    
     b.MouseButton1Click:Connect(function()
-        if mode == "E" then
-            _eOn = not _eOn; b.Text = "ESP: " .. (_eOn and "ON" or "OFF")
-        else
-            _hOn = not _hOn; b.Text = "HIGHLIGHT: " .. (_hOn and "ON" or "OFF")
-        end
-        if not _eOn and not _hOn then _KillAll() end
+        if mode == "E" then _eOn = not _eOn; b.Text = "ESP: " .. (_eOn and "ON" or "OFF")
+        else _hOn = not _hOn; b.Text = "HIGHLIGHT: " .. (_hOn and "ON" or "OFF") end
     end)
 end
 
-_createB("ESP: OFF", UDim2.new(0, 15, 0, 50), "E")
-_createB("HIGHLIGHT: OFF", UDim2.new(0, 15, 0, 100), "H")
+_createB("ESP: OFF", UDim2.new(0, 15, 0, 45), "E")
+_createB("HIGHLIGHT: OFF", UDim2.new(0, 15, 0, 85), "H")
 
-print("System @josus.dev - V5 Smooth Sync Loaded")
+-- BOTÓN DESTROY
+local _DB = Instance.new("TextButton", _M)
+_DB.Size = UDim2.new(0, 160, 0, 35); _DB.Position = UDim2.new(0, 15, 0, 125)
+_DB.BackgroundColor3 = Color3.fromRGB(60, 20, 20); _DB.Text = "DESTROY"
+_DB.TextColor3 = Color3.new(1, 1, 1); _DB.Font = "GothamBold"
+Instance.new("UICorner", _DB)
+
+_DB.MouseButton1Click:Connect(function()
+    _RenderLoop:Disconnect() -- Detiene el escaneo para que no gaste recursos
+    for _, v in pairs(_W:GetDescendants()) do
+        if v.Name == "J_ESP" or v.Name == "J_HL" then v:Destroy() end
+    end
+    _S:Destroy() -- Borra todo el GUI
+    print("Script @josus.dev - Total Destroy Executed")
+end)
+
+print("System @josus.dev - V7 Ready for GitHub")
