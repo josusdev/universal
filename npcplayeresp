@@ -4,14 +4,14 @@ local _R = game:GetService("RunService")
 local _L = _P.LocalPlayer
 local _G = _L:WaitForChild("PlayerGui")
 
-if _G:FindFirstChild("JosusDev_V10") then _G.JosusDev_V10:Destroy() end
+if _G:FindFirstChild("JosusDev_Final") then _G.JosusDev_V10:Destroy() end
 
 local _S = Instance.new("ScreenGui", _G)
-_S.Name = "JosusDev_V10"
+_S.Name = "JosusDev_Final"
 _S.ResetOnSpawn = false
 
 local _M = Instance.new("Frame", _S)
-_M.Size = UDim2.new(0, 190, 0, 200)
+_M.Size = UDim2.new(0, 190, 0, 210)
 _M.Position = UDim2.new(0.5, -95, 0.3, 0)
 _M.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 _M.Active = true
@@ -45,12 +45,14 @@ _OP.MouseButton1Click:Connect(function() _M.Visible = true; _OP.Visible = false 
 local _isL = false
 _LK.MouseButton1Click:Connect(function() _isL = not _isL; _M.Draggable = not _isL; _LK.Text = _isL and "🔒" or "🔓" end)
 
-local _eOn, _hOn = false, false
+local _eOn = false
+local _hOn = false
 
 local function _FullClean()
     for _, v in pairs(_W:GetDescendants()) do
-        if v:IsA("BillboardGui") and v.Name == "J_ESP" then v:Destroy() end
-        if v:IsA("Highlight") and v.Name == "J_HL" then v:Destroy() end
+        if v.Name == "J_ESP" or v.Name == "J_HL" then
+            v:Destroy()
+        end
     end
 end
 
@@ -92,20 +94,24 @@ _B2.Size = UDim2.new(0, 170, 0, 35); _B2.Position = UDim2.new(0, 10, 0, 90)
 _B2.Text = "HIGHLIGHT: OFF"; _B2.BackgroundColor3 = Color3.fromRGB(35, 35, 35); _B2.TextColor3 = Color3.new(1, 1, 1); Instance.new("UICorner", _B2)
 
 local _B3 = Instance.new("TextButton", _M)
-_B3.Size = UDim2.new(0, 170, 0, 35); _B3.Position = UDim2.new(0, 10, 0, 140)
+_B3.Size = UDim2.new(0, 170, 0, 35); _B3.Position = UDim2.new(0, 10, 0, 135)
 _B3.Text = "DESTROY"; _B3.BackgroundColor3 = Color3.fromRGB(80, 0, 0); _B3.TextColor3 = Color3.new(1, 1, 1); Instance.new("UICorner", _B3)
 
 _B1.MouseButton1Click:Connect(function()
-    _eOn = not _eOn; _B1.Text = "ESP: " .. (_eOn and "ON" or "OFF")
+    _eOn = not _eOn
+    _B1.Text = "ESP: " .. (_eOn and "ON" or "OFF")
     if not _eOn then _FullClean() end
 end)
 
 _B2.MouseButton1Click:Connect(function()
-    _hOn = not _hOn; _B2.Text = "HIGHLIGHT: " .. (_hOn and "ON" or "OFF")
+    _hOn = not _hOn
+    _B2.Text = "HIGHLIGHT: " .. (_hOn and "ON" or "OFF")
     if not _hOn then _FullClean() end
 end)
 
 _B3.MouseButton1Click:Connect(function()
+    _eOn = false
+    _hOn = false
     _RenderLoop:Disconnect()
     _FullClean()
     _S:Destroy()
