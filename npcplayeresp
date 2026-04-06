@@ -4,14 +4,14 @@ local _R = game:GetService("RunService")
 local _L = _P.LocalPlayer
 local _G = _L:WaitForChild("PlayerGui")
 
-if _G:FindFirstChild("JosusDev_V9") then _G.JosusDev_V9:Destroy() end
+if _G:FindFirstChild("JosusDev_V10") then _G.JosusDev_V10:Destroy() end
 
 local _S = Instance.new("ScreenGui", _G)
-_S.Name = "JosusDev_V9"
+_S.Name = "JosusDev_V10"
 _S.ResetOnSpawn = false
 
 local _M = Instance.new("Frame", _S)
-_M.Size = UDim2.new(0, 190, 0, 190)
+_M.Size = UDim2.new(0, 190, 0, 200)
 _M.Position = UDim2.new(0.5, -95, 0.3, 0)
 _M.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 _M.Active = true
@@ -47,23 +47,19 @@ _LK.MouseButton1Click:Connect(function() _isL = not _isL; _M.Draggable = not _is
 
 local _eOn, _hOn = false, false
 
-local function _ClearAll()
+local function _FullClean()
     for _, v in pairs(_W:GetDescendants()) do
-        if v.Name == "J_ESP" or v.Name == "J_HL" then v:Destroy() end
+        if v:IsA("BillboardGui") and v.Name == "J_ESP" then v:Destroy() end
+        if v:IsA("Highlight") and v.Name == "J_HL" then v:Destroy() end
     end
 end
 
 local _RenderLoop
 _RenderLoop = _R.RenderStepped:Connect(function()
-    if not _eOn and not _hOn then return end
     for _, obj in pairs(_W:GetDescendants()) do
         if obj:IsA("Model") and obj:FindFirstChild("Humanoid") and obj ~= _L.Character then
             local head = obj:FindFirstChild("Head")
             if head then
-                if _hOn then
-                    local hl = obj:FindFirstChild("J_HL") or Instance.new("Highlight", obj)
-                    hl.Name = "J_HL"; hl.Enabled = true; hl.FillColor = Color3.new(1, 0, 0); hl.DepthMode = "AlwaysOnTop"
-                end
                 if _eOn then
                     local bg = head:FindFirstChild("J_ESP") or Instance.new("BillboardGui", head)
                     bg.Name = "J_ESP"; bg.AlwaysOnTop = true; bg.Size = UDim2.new(0, 100, 0, 50); bg.StudsOffset = Vector3.new(0, 3, 0)
@@ -72,6 +68,15 @@ _RenderLoop = _R.RenderStepped:Connect(function()
                     tl.Font = "GothamBold"; tl.TextSize = 10; tl.TextStrokeTransparency = 0
                     local dist = math.floor((_L.Character.HumanoidRootPart.Position - head.Position).Magnitude)
                     tl.Text = obj.Name .. "\n[" .. math.floor(obj.Humanoid.Health) .. " HP]\n" .. dist .. "m"
+                else
+                    if head:FindFirstChild("J_ESP") then head.J_ESP:Destroy() end
+                end
+
+                if _hOn then
+                    local hl = obj:FindFirstChild("J_HL") or Instance.new("Highlight", obj)
+                    hl.Name = "J_HL"; hl.Enabled = true; hl.FillColor = Color3.new(1, 0, 0); hl.DepthMode = "AlwaysOnTop"
+                else
+                    if obj:FindFirstChild("J_HL") then obj.J_HL:Destroy() end
                 end
             end
         end
@@ -87,21 +92,21 @@ _B2.Size = UDim2.new(0, 170, 0, 35); _B2.Position = UDim2.new(0, 10, 0, 90)
 _B2.Text = "HIGHLIGHT: OFF"; _B2.BackgroundColor3 = Color3.fromRGB(35, 35, 35); _B2.TextColor3 = Color3.new(1, 1, 1); Instance.new("UICorner", _B2)
 
 local _B3 = Instance.new("TextButton", _M)
-_B3.Size = UDim2.new(0, 170, 0, 35); _B3.Position = UDim2.new(0, 10, 0, 135)
+_B3.Size = UDim2.new(0, 170, 0, 35); _B3.Position = UDim2.new(0, 10, 0, 140)
 _B3.Text = "DESTROY"; _B3.BackgroundColor3 = Color3.fromRGB(80, 0, 0); _B3.TextColor3 = Color3.new(1, 1, 1); Instance.new("UICorner", _B3)
 
 _B1.MouseButton1Click:Connect(function()
     _eOn = not _eOn; _B1.Text = "ESP: " .. (_eOn and "ON" or "OFF")
-    if not _eOn then _ClearAll() end
+    if not _eOn then _FullClean() end
 end)
 
 _B2.MouseButton1Click:Connect(function()
     _hOn = not _hOn; _B2.Text = "HIGHLIGHT: " .. (_hOn and "ON" or "OFF")
-    if not _hOn then _ClearAll() end
+    if not _hOn then _FullClean() end
 end)
 
 _B3.MouseButton1Click:Connect(function()
     _RenderLoop:Disconnect()
-    _ClearAll()
+    _FullClean()
     _S:Destroy()
 end)
