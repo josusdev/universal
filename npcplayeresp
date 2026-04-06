@@ -1,23 +1,17 @@
---[[
-    SECURITY PROTOCOL: @josus.dev
-    ULTRA-SYNC RENDER SYSTEM v8.0
-]]
-
 local _P = game:GetService("Players")
 local _W = game:GetService("Workspace")
 local _R = game:GetService("RunService")
 local _L = _P.LocalPlayer
 local _G = _L:WaitForChild("PlayerGui")
 
--- Limpiar versiones viejas
-if _G:FindFirstChild("JosusDev_V8") then _G.JosusDev_V8:Destroy() end
+if _G:FindFirstChild("JosusDev_V9") then _G.JosusDev_V9:Destroy() end
 
 local _S = Instance.new("ScreenGui", _G)
-_S.Name = "JosusDev_V8"
+_S.Name = "JosusDev_V9"
 _S.ResetOnSpawn = false
 
 local _M = Instance.new("Frame", _S)
-_M.Size = UDim2.new(0, 190, 0, 190) -- Tamaño ajustado para que quepan todos
+_M.Size = UDim2.new(0, 190, 0, 190)
 _M.Position = UDim2.new(0.5, -95, 0.3, 0)
 _M.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 _M.Active = true
@@ -32,7 +26,6 @@ _T.Size = UDim2.new(0, 120, 0, 30); _T.Position = UDim2.new(0, 10, 0, 5)
 _T.Text = "@josus.dev"; _T.TextColor3 = Color3.new(1, 1, 1)
 _T.BackgroundTransparency = 1; _T.Font = "GothamBold"; _T.TextSize = 14; _T.TextXAlignment = "Left"
 
--- Controles superiores
 local _LK = Instance.new("TextButton", _M)
 _LK.Size = UDim2.new(0, 25, 0, 25); _LK.Position = UDim2.new(1, -60, 0, 5)
 _LK.Text = "🔓"; _LK.BackgroundColor3 = Color3.fromRGB(40, 40, 40); Instance.new("UICorner", _LK)
@@ -41,7 +34,6 @@ local _CL = Instance.new("TextButton", _M)
 _CL.Size = UDim2.new(0, 25, 0, 25); _CL.Position = UDim2.new(1, -30, 0, 5)
 _CL.Text = "X"; _CL.BackgroundColor3 = Color3.fromRGB(150, 0, 0); _CL.TextColor3 = Color3.new(1, 1, 1); Instance.new("UICorner", _CL)
 
--- Boton Open (Aparece al cerrar)
 local _OP = Instance.new("TextButton", _S)
 _OP.Size = UDim2.new(0, 75, 0, 30); _OP.Position = UDim2.new(0, 10, 0.5, 0)
 _OP.Text = "Open"; _OP.Visible = false; _OP.BackgroundColor3 = Color3.fromRGB(15, 15, 15); _OP.TextColor3 = Color3.new(1, 1, 1)
@@ -55,14 +47,12 @@ _LK.MouseButton1Click:Connect(function() _isL = not _isL; _M.Draggable = not _is
 
 local _eOn, _hOn = false, false
 
--- FUNCIÓN PARA BORRAR RASTROS
 local function _ClearAll()
     for _, v in pairs(_W:GetDescendants()) do
         if v.Name == "J_ESP" or v.Name == "J_HL" then v:Destroy() end
     end
 end
 
--- MOTOR DE RENDER
 local _RenderLoop
 _RenderLoop = _R.RenderStepped:Connect(function()
     if not _eOn and not _hOn then return end
@@ -70,12 +60,10 @@ _RenderLoop = _R.RenderStepped:Connect(function()
         if obj:IsA("Model") and obj:FindFirstChild("Humanoid") and obj ~= _L.Character then
             local head = obj:FindFirstChild("Head")
             if head then
-                -- Highlight
                 if _hOn then
                     local hl = obj:FindFirstChild("J_HL") or Instance.new("Highlight", obj)
                     hl.Name = "J_HL"; hl.Enabled = true; hl.FillColor = Color3.new(1, 0, 0); hl.DepthMode = "AlwaysOnTop"
                 end
-                -- ESP Texto
                 if _eOn then
                     local bg = head:FindFirstChild("J_ESP") or Instance.new("BillboardGui", head)
                     bg.Name = "J_ESP"; bg.AlwaysOnTop = true; bg.Size = UDim2.new(0, 100, 0, 50); bg.StudsOffset = Vector3.new(0, 3, 0)
@@ -90,17 +78,16 @@ _RenderLoop = _R.RenderStepped:Connect(function()
     end
 end)
 
--- Botones principales
 local _B1 = Instance.new("TextButton", _M)
-_B1.Size = UDim2.new(0, 170, 0, 35); _B1.Position = UDim2.new(0, 10, 0, 40)
+_B1.Size = UDim2.new(0, 170, 0, 35); _B1.Position = UDim2.new(0, 10, 0, 45)
 _B1.Text = "ESP: OFF"; _B1.BackgroundColor3 = Color3.fromRGB(35, 35, 35); _B1.TextColor3 = Color3.new(1, 1, 1); Instance.new("UICorner", _B1)
 
 local _B2 = Instance.new("TextButton", _M)
-_B2.Size = UDim2.new(0, 170, 0, 35); _B2.Position = UDim2.new(0, 10, 0, 85)
+_B2.Size = UDim2.new(0, 170, 0, 35); _B2.Position = UDim2.new(0, 10, 0, 90)
 _B2.Text = "HIGHLIGHT: OFF"; _B2.BackgroundColor3 = Color3.fromRGB(35, 35, 35); _B2.TextColor3 = Color3.new(1, 1, 1); Instance.new("UICorner", _B2)
 
-local _B3 = Instance.new("TextButton", _M) -- BOTON DESTROY
-_B3.Size = UDim2.new(0, 170, 0, 35); _B3.Position = UDim2.new(0, 10, 0, 130)
+local _B3 = Instance.new("TextButton", _M)
+_B3.Size = UDim2.new(0, 170, 0, 35); _B3.Position = UDim2.new(0, 10, 0, 135)
 _B3.Text = "DESTROY"; _B3.BackgroundColor3 = Color3.fromRGB(80, 0, 0); _B3.TextColor3 = Color3.new(1, 1, 1); Instance.new("UICorner", _B3)
 
 _B1.MouseButton1Click:Connect(function()
@@ -118,5 +105,3 @@ _B3.MouseButton1Click:Connect(function()
     _ClearAll()
     _S:Destroy()
 end)
-
-print("@josus.dev - V8 Loaded")
