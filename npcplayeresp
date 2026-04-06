@@ -1,249 +1,124 @@
 --[[
-
     SECURITY PROTOCOL: @josus.dev
-
-    STATUS: ANTI-DEOBFUSCATE ACTIVATED
-
+    STATUS: ANTI-DEOBFUSCATE / AUTO-CLEAN ACTIVE
 ]]
 
-
-
 local _P = game:GetService("Players")
-
 local _W = game:GetService("Workspace")
-
 local _L = _P.LocalPlayer
-
 local _G = _L:WaitForChild("PlayerGui")
 
-
-
-if _G:FindFirstChild("JosusDev_V3") then _G.JosusDev_V3:Destroy() end
-
-
+if _G:FindFirstChild("JosusDev_V4") then _G.JosusDev_V4:Destroy() end
 
 local _S = Instance.new("ScreenGui", _G)
-
-_S.Name = "JosusDev_V3"
-
+_S.Name = "JosusDev_V4"
 _S.ResetOnSpawn = false
 
-
-
 local _M = Instance.new("Frame", _S)
-
 _M.Size = UDim2.new(0, 190, 0, 160)
-
 _M.Position = UDim2.new(0.5, -95, 0.3, 0)
-
 _M.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-
 _M.Active = true
-
 _M.Draggable = true
 
-
-
 local _ST = Instance.new("UIStroke", _M)
-
 _ST.Color = Color3.fromRGB(255, 0, 0)
-
 _ST.Thickness = 2
-
 Instance.new("UICorner", _M)
 
-
-
 local _T = Instance.new("TextLabel", _M)
-
-_T.Size = UDim2.new(0, 120, 0, 30)
-
-_T.Position = UDim2.new(0, 12, 0, 5)
-
-_T.Text = "@josus.dev"
-
-_T.TextColor3 = Color3.new(1, 1, 1)
-
-_T.BackgroundTransparency = 1
-
-_T.Font = "GothamBold"
-
-_T.TextSize = 14
-
-_T.TextXAlignment = "Left"
-
-
+_T.Size = UDim2.new(0, 120, 0, 30); _T.Position = UDim2.new(0, 12, 0, 5)
+_T.Text = "@josus.dev"; _T.TextColor3 = Color3.new(1, 1, 1)
+_T.BackgroundTransparency = 1; _T.Font = "GothamBold"; _T.TextSize = 14; _T.TextXAlignment = "Left"
 
 local _LK = Instance.new("TextButton", _M)
-
 _LK.Size = UDim2.new(0, 25, 0, 25); _LK.Position = UDim2.new(1, -60, 0, 5)
-
-_LK.Text = "🔓"; _LK.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-
-Instance.new("UICorner", _LK)
-
-
+_LK.Text = "🔓"; _LK.BackgroundColor3 = Color3.fromRGB(40, 40, 40); Instance.new("UICorner", _LK)
 
 local _CL = Instance.new("TextButton", _M)
-
 _CL.Size = UDim2.new(0, 25, 0, 25); _CL.Position = UDim2.new(1, -30, 0, 5)
-
-_CL.Text = "X"; _CL.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
-
-_CL.TextColor3 = Color3.new(1, 1, 1)
-
-Instance.new("UICorner", _CL)
-
-
+_CL.Text = "X"; _CL.BackgroundColor3 = Color3.fromRGB(150, 0, 0); _CL.TextColor3 = Color3.new(1, 1, 1); Instance.new("UICorner", _CL)
 
 local _OP = Instance.new("TextButton", _S)
-
 _OP.Size = UDim2.new(0, 75, 0, 30); _OP.Position = UDim2.new(0, 10, 0.5, 0)
-
-_OP.Text = "Open"; _OP.Visible = false; _OP.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-
-_OP.TextColor3 = Color3.new(1, 1, 1)
-
-Instance.new("UIStroke", _OP).Color = Color3.fromRGB(255, 0, 0)
-
-Instance.new("UICorner", _OP)
-
-
+_OP.Text = "Open"; _OP.Visible = false; _OP.BackgroundColor3 = Color3.fromRGB(15, 15, 15); _OP.TextColor3 = Color3.new(1, 1, 1)
+Instance.new("UIStroke", _OP).Color = Color3.fromRGB(255, 0, 0); Instance.new("UICorner", _OP)
 
 _CL.MouseButton1Click:Connect(function() _M.Visible = false; _OP.Visible = true end)
-
 _OP.MouseButton1Click:Connect(function() _M.Visible = true; _OP.Visible = false end)
 
-
-
 local _isL = false
-
-_LK.MouseButton1Click:Connect(function()
-
-    _isL = not _isL; _M.Draggable = not _isL; _LK.Text = _isL and "🔒" or "🔓"
-
-end)
-
-
-
--- LOGICA ESP (NPCs & Players)
+_LK.MouseButton1Click:Connect(function() _isL = not _isL; _M.Draggable = not _isL; _LK.Text = _isL and "🔒" or "🔓" end)
 
 local _eOn, _hOn = false, false
 
-
+-- Función para limpiar ESP al apagar
+local function _ClearESP()
+    for _, v in pairs(_W:GetDescendants()) do
+        if v.Name == "J_ESP" or v.Name == "J_HL" then
+            v:Destroy()
+        end
+    end
+end
 
 local function _ApplyESP(obj)
-
+    if not _eOn and not _hOn then return end
     if obj:IsA("Model") and obj:FindFirstChild("Humanoid") and obj ~= _L.Character then
-
         local head = obj:FindFirstChild("Head") or obj:FindFirstChild("UpperTorso")
-
         if head then
+            if _eOn then
+                local bg = obj:FindFirstChild("J_ESP") or Instance.new("BillboardGui", head)
+                bg.Name = "J_ESP"; bg.AlwaysOnTop = true; bg.Size = UDim2.new(0, 100, 0, 50)
+                bg.StudsOffset = Vector3.new(0, 3, 0); bg.Enabled = true
+                
+                local tl = bg:FindFirstChild("T") or Instance.new("TextLabel", bg)
+                tl.Name = "T"; tl.Size = UDim2.new(1, 0, 1, 0); tl.BackgroundTransparency = 1
+                tl.TextColor3 = Color3.new(1, 1, 1); tl.TextSize = 11; tl.Font = "GothamBold"; tl.TextStrokeTransparency = 0
 
-            -- Billboard
-
-            local bg = obj:FindFirstChild("J_ESP") or Instance.new("BillboardGui", head)
-
-            bg.Name = "J_ESP"; bg.AlwaysOnTop = true; bg.Size = UDim2.new(0, 100, 0, 50)
-
-            bg.StudsOffset = Vector3.new(0, 3, 0); bg.Enabled = _eOn
-
-            
-
-            local tl = bg:FindFirstChild("T") or Instance.new("TextLabel", bg)
-
-            tl.Name = "T"; tl.Size = UDim2.new(1, 0, 1, 0); tl.BackgroundTransparency = 1
-
-            tl.TextColor3 = Color3.new(1, 1, 1); tl.TextSize = 11; tl.Font = "GothamBold"
-
-            tl.TextStrokeTransparency = 0
-
-
-
-            local hl = obj:FindFirstChild("J_HL") or Instance.new("Highlight", obj)
-
-            hl.Name = "J_HL"; hl.FillColor = Color3.new(1, 0, 0); hl.Enabled = _hOn
-
-            hl.DepthMode = "AlwaysOnTop"
-
-
-
-            task.spawn(function()
-
-                while obj.Parent and (bg or hl) do
-
-                    if _eOn then
-
+                task.spawn(function()
+                    while obj.Parent and _eOn and bg.Parent do
                         local dist = math.floor((_L.Character.HumanoidRootPart.Position - head.Position).Magnitude)
-
                         local hp = math.floor(obj.Humanoid.Health)
-
                         tl.Text = obj.Name .. "\n[" .. hp .. " HP]\n" .. dist .. "m"
-
+                        task.wait(0.3)
                     end
+                    if not _eOn and bg then bg:Destroy() end
+                end)
+            end
 
-                    task.wait(0.2)
-
-                end
-
-            end)
-
+            if _hOn then
+                local hl = obj:FindFirstChild("J_HL") or Instance.new("Highlight", obj)
+                hl.Name = "J_HL"; hl.FillColor = Color3.new(1, 0, 0); hl.Enabled = true; hl.DepthMode = "AlwaysOnTop"
+            end
         end
-
     end
-
 end
-
-
 
 local function _createB(txt, pos, mode)
-
     local b = Instance.new("TextButton", _M)
-
-    b.Size = UDim2.new(0, 160, 0, 40); b.Position = pos
-
-    b.BackgroundColor3 = Color3.fromRGB(35, 35, 35); b.Text = txt
-
-    b.TextColor3 = Color3.new(1, 1, 1); b.Font = "GothamBold"
-
-    Instance.new("UICorner", b)
-
+    b.Size = UDim2.new(0, 160, 0, 40); b.Position = pos; b.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    b.Text = txt; b.TextColor3 = Color3.new(1, 1, 1); b.Font = "GothamBold"; Instance.new("UICorner", b)
     
-
     b.MouseButton1Click:Connect(function()
-
         if mode == "E" then
-
             _eOn = not _eOn; b.Text = "ESP: " .. (_eOn and "ON" or "OFF")
-
+            if not _eOn then _ClearESP() end
         else
-
             _hOn = not _hOn; b.Text = "HIGHLIGHT: " .. (_hOn and "ON" or "OFF")
-
+            if not _hOn then _ClearESP() end
         end
-
-        for _, v in pairs(_W:GetDescendants()) do _ApplyESP(v) end
-
+        if _eOn or _hOn then
+            for _, v in pairs(_W:GetDescendants()) do _ApplyESP(v) end
+        end
     end)
-
 end
 
-
-
 _createB("ESP: OFF", UDim2.new(0, 15, 0, 50), "E")
-
 _createB("HIGHLIGHT: OFF", UDim2.new(0, 15, 0, 100), "H")
 
-
-
 _W.DescendantAdded:Connect(function(v)
-
-    task.wait(1)
-
+    task.wait(0.5)
     if _eOn or _hOn then _ApplyESP(v) end
-
 end)
 
-
-
-print("System @josus.dev - Universal ESP & NPC Tracker Loaded")
+print("System @josus.dev - Limpieza Automática Activada")
