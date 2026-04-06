@@ -1,7 +1,6 @@
 --[[
     SECURITY PROTOCOL: @josus.dev
-    ULTRA-SYNC RENDER SYSTEM v7.0 (FINAL)
-    ACCESS: PRIVATE
+    ULTRA-SYNC RENDER SYSTEM v8.0
 ]]
 
 local _P = game:GetService("Players")
@@ -10,14 +9,15 @@ local _R = game:GetService("RunService")
 local _L = _P.LocalPlayer
 local _G = _L:WaitForChild("PlayerGui")
 
-if _G:FindFirstChild("JosusDev_V7") then _G.JosusDev_V7:Destroy() end
+-- Limpiar versiones viejas
+if _G:FindFirstChild("JosusDev_V8") then _G.JosusDev_V8:Destroy() end
 
 local _S = Instance.new("ScreenGui", _G)
-_S.Name = "JosusDev_V7"
+_S.Name = "JosusDev_V8"
 _S.ResetOnSpawn = false
 
 local _M = Instance.new("Frame", _S)
-_M.Size = UDim2.new(0, 190, 0, 205) -- Tamaño aumentado para el nuevo botón
+_M.Size = UDim2.new(0, 190, 0, 190) -- Tamaño ajustado para que quepan todos
 _M.Position = UDim2.new(0.5, -95, 0.3, 0)
 _M.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 _M.Active = true
@@ -28,10 +28,11 @@ _ST.Thickness = 2
 Instance.new("UICorner", _M)
 
 local _T = Instance.new("TextLabel", _M)
-_T.Size = UDim2.new(0, 120, 0, 30); _T.Position = UDim2.new(0, 12, 0, 5)
+_T.Size = UDim2.new(0, 120, 0, 30); _T.Position = UDim2.new(0, 10, 0, 5)
 _T.Text = "@josus.dev"; _T.TextColor3 = Color3.new(1, 1, 1)
 _T.BackgroundTransparency = 1; _T.Font = "GothamBold"; _T.TextSize = 14; _T.TextXAlignment = "Left"
 
+-- Controles superiores
 local _LK = Instance.new("TextButton", _M)
 _LK.Size = UDim2.new(0, 25, 0, 25); _LK.Position = UDim2.new(1, -60, 0, 5)
 _LK.Text = "🔓"; _LK.BackgroundColor3 = Color3.fromRGB(40, 40, 40); Instance.new("UICorner", _LK)
@@ -40,6 +41,7 @@ local _CL = Instance.new("TextButton", _M)
 _CL.Size = UDim2.new(0, 25, 0, 25); _CL.Position = UDim2.new(1, -30, 0, 5)
 _CL.Text = "X"; _CL.BackgroundColor3 = Color3.fromRGB(150, 0, 0); _CL.TextColor3 = Color3.new(1, 1, 1); Instance.new("UICorner", _CL)
 
+-- Boton Open (Aparece al cerrar)
 local _OP = Instance.new("TextButton", _S)
 _OP.Size = UDim2.new(0, 75, 0, 30); _OP.Position = UDim2.new(0, 10, 0.5, 0)
 _OP.Text = "Open"; _OP.Visible = false; _OP.BackgroundColor3 = Color3.fromRGB(15, 15, 15); _OP.TextColor3 = Color3.new(1, 1, 1)
@@ -53,67 +55,68 @@ _LK.MouseButton1Click:Connect(function() _isL = not _isL; _M.Draggable = not _is
 
 local _eOn, _hOn = false, false
 
--- MOTOR DE RENDERIZADO (Conexión para poder desconectarla después)
+-- FUNCIÓN PARA BORRAR RASTROS
+local function _ClearAll()
+    for _, v in pairs(_W:GetDescendants()) do
+        if v.Name == "J_ESP" or v.Name == "J_HL" then v:Destroy() end
+    end
+end
+
+-- MOTOR DE RENDER
 local _RenderLoop
 _RenderLoop = _R.RenderStepped:Connect(function()
+    if not _eOn and not _hOn then return end
     for _, obj in pairs(_W:GetDescendants()) do
         if obj:IsA("Model") and obj:FindFirstChild("Humanoid") and obj ~= _L.Character then
             local head = obj:FindFirstChild("Head")
-            local hrp = obj:FindFirstChild("HumanoidRootPart")
-
-            if head and hrp then
+            if head then
+                -- Highlight
                 if _hOn then
                     local hl = obj:FindFirstChild("J_HL") or Instance.new("Highlight", obj)
                     hl.Name = "J_HL"; hl.Enabled = true; hl.FillColor = Color3.new(1, 0, 0); hl.DepthMode = "AlwaysOnTop"
-                else
-                    if obj:FindFirstChild("J_HL") then obj.J_HL:Destroy() end
                 end
-
+                -- ESP Texto
                 if _eOn then
                     local bg = head:FindFirstChild("J_ESP") or Instance.new("BillboardGui", head)
                     bg.Name = "J_ESP"; bg.AlwaysOnTop = true; bg.Size = UDim2.new(0, 100, 0, 50); bg.StudsOffset = Vector3.new(0, 3, 0)
                     local tl = bg:FindFirstChild("T") or Instance.new("TextLabel", bg)
                     tl.Name = "T"; tl.Size = UDim2.new(1, 0, 1, 0); tl.BackgroundTransparency = 1; tl.TextColor3 = Color3.new(1, 1, 1)
-                    tl.Font = "GothamBold"; tl.TextSize = 11; tl.TextStrokeTransparency = 0
-                    local dist = math.floor((_L.Character.HumanoidRootPart.Position - hrp.Position).Magnitude)
-                    local hp = math.floor(obj.Humanoid.Health)
-                    tl.Text = obj.Name .. "\n[" .. hp .. " HP]\n" .. dist .. "m"
-                else
-                    if head:FindFirstChild("J_ESP") then head.J_ESP:Destroy() end
+                    tl.Font = "GothamBold"; tl.TextSize = 10; tl.TextStrokeTransparency = 0
+                    local dist = math.floor((_L.Character.HumanoidRootPart.Position - head.Position).Magnitude)
+                    tl.Text = obj.Name .. "\n[" .. math.floor(obj.Humanoid.Health) .. " HP]\n" .. dist .. "m"
                 end
             end
         end
     end
 end)
 
--- Botones de ESP y Highlight
-local function _createB(txt, pos, mode)
-    local b = Instance.new("TextButton", _M)
-    b.Size = UDim2.new(0, 160, 0, 35); b.Position = pos; b.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-    b.Text = txt; b.TextColor3 = Color3.new(1, 1, 1); b.Font = "GothamBold"; Instance.new("UICorner", b)
-    b.MouseButton1Click:Connect(function()
-        if mode == "E" then _eOn = not _eOn; b.Text = "ESP: " .. (_eOn and "ON" or "OFF")
-        else _hOn = not _hOn; b.Text = "HIGHLIGHT: " .. (_hOn and "ON" or "OFF") end
-    end)
-end
+-- Botones principales
+local _B1 = Instance.new("TextButton", _M)
+_B1.Size = UDim2.new(0, 170, 0, 35); _B1.Position = UDim2.new(0, 10, 0, 40)
+_B1.Text = "ESP: OFF"; _B1.BackgroundColor3 = Color3.fromRGB(35, 35, 35); _B1.TextColor3 = Color3.new(1, 1, 1); Instance.new("UICorner", _B1)
 
-_createB("ESP: OFF", UDim2.new(0, 15, 0, 45), "E")
-_createB("HIGHLIGHT: OFF", UDim2.new(0, 15, 0, 85), "H")
+local _B2 = Instance.new("TextButton", _M)
+_B2.Size = UDim2.new(0, 170, 0, 35); _B2.Position = UDim2.new(0, 10, 0, 85)
+_B2.Text = "HIGHLIGHT: OFF"; _B2.BackgroundColor3 = Color3.fromRGB(35, 35, 35); _B2.TextColor3 = Color3.new(1, 1, 1); Instance.new("UICorner", _B2)
 
--- BOTÓN DESTROY
-local _DB = Instance.new("TextButton", _M)
-_DB.Size = UDim2.new(0, 160, 0, 35); _DB.Position = UDim2.new(0, 15, 0, 125)
-_DB.BackgroundColor3 = Color3.fromRGB(60, 20, 20); _DB.Text = "DESTROY"
-_DB.TextColor3 = Color3.new(1, 1, 1); _DB.Font = "GothamBold"
-Instance.new("UICorner", _DB)
+local _B3 = Instance.new("TextButton", _M) -- BOTON DESTROY
+_B3.Size = UDim2.new(0, 170, 0, 35); _B3.Position = UDim2.new(0, 10, 0, 130)
+_B3.Text = "DESTROY"; _B3.BackgroundColor3 = Color3.fromRGB(80, 0, 0); _B3.TextColor3 = Color3.new(1, 1, 1); Instance.new("UICorner", _B3)
 
-_DB.MouseButton1Click:Connect(function()
-    _RenderLoop:Disconnect() -- Detiene el escaneo para que no gaste recursos
-    for _, v in pairs(_W:GetDescendants()) do
-        if v.Name == "J_ESP" or v.Name == "J_HL" then v:Destroy() end
-    end
-    _S:Destroy() -- Borra todo el GUI
-    print("Script @josus.dev - Total Destroy Executed")
+_B1.MouseButton1Click:Connect(function()
+    _eOn = not _eOn; _B1.Text = "ESP: " .. (_eOn and "ON" or "OFF")
+    if not _eOn then _ClearAll() end
 end)
 
-print("System @josus.dev - V7 Ready for GitHub")
+_B2.MouseButton1Click:Connect(function()
+    _hOn = not _hOn; _B2.Text = "HIGHLIGHT: " .. (_hOn and "ON" or "OFF")
+    if not _hOn then _ClearAll() end
+end)
+
+_B3.MouseButton1Click:Connect(function()
+    _RenderLoop:Disconnect()
+    _ClearAll()
+    _S:Destroy()
+end)
+
+print("@josus.dev - V8 Loaded")
